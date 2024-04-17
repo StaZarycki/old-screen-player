@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Old screen player</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      #screen {
+        position: absolute;
+        display: block;
+        height: 100%;
+        pointer-events: none;
+        object-fit: contain;
+        top: 50%;
+        left: 50%;
+        -ms-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+      }
+
+      #player {
+        display: block;
+        background-color: black;
+        height: 100%;
+        width: 100%;
+      }
+
+      #player-container {
+        position: absolute;
+        display: block;
+        aspect-ratio: 4 / 3;
+        height: 74.6%;
+        top: 49.4%;
+        left: 42.2%;
+        -ms-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="player-container">
+      <div id="player"></div>
+    </div>
+    <img id="screen" src="screen-transparent.png" alt="screen" />
+    <script>
+      const videoId = new URL(location).searchParams.get('v');
+      if (!videoId)
+        alert('Please provide a YouTube video id in a format ?v=[id]');
+
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      let player;
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+          width: '480',
+          height: '390',
+          videoId,
+          playerVars: {
+            playsinline: 1,
+            autoplay: 1,
+            controls: 1,
+            iv_load_policy: 3,
+            rel: 0,
+          },
+          events: {
+            onReady: onPlayerReady,
+            onStateChange: onPlayerStateChange,
+          },
+        });
+      }
+
+      function onPlayerReady(event) {
+        event.target.playVideo();
+      }
+
+      let done = false;
+      function onPlayerStateChange(event) {
+        if (event.data == YT.PlayerState.PLAYING && !done) {
+          setTimeout(stopVideo, 6000);
+          done = true;
+        }
+      }
+
+      function stopVideo() {
+        player.stopVideo();
+      }
+    </script>
+  </body>
+</html>
